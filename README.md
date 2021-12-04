@@ -1,36 +1,30 @@
 # aoc2021
 
-FIXME: description
+Participating in https://adventofcode.com/2021 using Clojure
 
 ## Installation
 
-Download from http://example.com/FIXME.
+Requires leinigen.
 
 ## Usage
 
-FIXME: explanation
-
-    $ java -jar aoc2021-0.1.0-standalone.jar [args]
+    $ lein run
 
 ## Options
 
-FIXME: listing of options this app accepts.
+Usage: main <day.part> [data]
 
 ## Examples
 
-...
+    $ lein run -- 1.1 1 3 5 2 4 6
 
 ### Bugs
 
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
+n/a
 
 ## License
 
-Copyright © 2021 FIXME
+Copyright © 2021 Quota
 
 This program and the accompanying materials are made available under the
 terms of the Eclipse Public License 2.0 which is available at

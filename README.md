@@ -8,7 +8,7 @@ Requires leinigen.
 
 ## Usage
 
-    $ lein run
+    $ lein run ...
 
 ## Options
 
@@ -17,6 +17,7 @@ Usage: main <day.part> [data]
 ## Examples
 
     $ lein run -- 1.1 1 3 5 2 4 6
+    $ lein run -- 1.1 < resources/day01_input_sample.txt
 
 ### Bugs
 

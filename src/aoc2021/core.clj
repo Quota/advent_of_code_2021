@@ -3,6 +3,7 @@
   (:require [aoc2021.util :as u])
   (:require [aoc2021.day01 :as day01])
   (:require [aoc2021.day02 :as day02])
+  (:require [aoc2021.day03 :as day03])
   )
 
 (defn usage
@@ -30,4 +31,6 @@
         "1.2" (day01/solve-part-2 (map #(Integer/parseInt %) data))
         "2.1" (day02/solve-part-1 data)
         "2.2" (day02/solve-part-2 data)
+        "3.1" (day03/solve-part-1 data)
+        "3.2" (day03/solve-part-2 data)
         (usage)))))

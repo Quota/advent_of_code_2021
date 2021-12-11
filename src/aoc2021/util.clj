@@ -18,4 +18,15 @@
   [& xs]
   ;(pln :log xs)
   ; prepend #_ to comment out
-  #_ (apply println "[LOG]" xs))
+  #_(apply println "[LOG]" xs))
+
+(defn binary-to-number
+  "Gets a list of bits (0 and 1) and returns the number these bits describe."
+  ([bits] (binary-to-number bits 0))
+  ([bits number]
+   (if (empty? bits)
+     number
+     (recur (rest bits)
+            (-> number
+                (* 2)
+                (+ (first bits)))))))

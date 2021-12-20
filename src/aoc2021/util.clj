@@ -30,3 +30,13 @@
             (-> number
                 (* 2)
                 (+ (first bits)))))))
+
+(defn parse-input-numbers
+  "Input: (\"n,n,...\") ; list with one string with numbers separated by comma
+  Output: (n n ...) ; list of integers"
+  [lines]
+  (as-> lines $
+    (first $)
+    (clojure.string/split $ #"[, ]+")
+    (map #(Integer/parseInt %) $)))
+

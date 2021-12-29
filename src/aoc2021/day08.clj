@@ -10,7 +10,9 @@
 (defn solve-part-1
   "simple segments"
   [data]
-  "Execute in bash: cat resources/day08_input_real.txt | sed -e 's/.* | //' | sed -e 's/ /\n/g' | grep -v '^......\\?$' | wc -l")
+  '("Execute in bash:"
+   "cat resources/day08_input_real.txt | sed -e 's/.* | //' | sed -e 's/ /\n/g' | grep -v '^......\\?$' | wc -l"
+   "See also: src/aoc2021/day08.sh"))
 
 ;;;
 ;;; part 2
@@ -18,34 +20,21 @@
 
 (comment "deduction of segments:
 
-         b appears 6x in 0123456789
-         e appears 4x in 0123456789
-         f appears 9x in 0123456789
+         only segment b appears 6x in 0123456789
+         only segment e appears 4x in 0123456789
+         only segment f appears 9x in 0123456789
 
-         remove b, e, f from 1478:
+         remove segments b, e, f from 1478:
 
-         c appears 4x in 1478'
-         g appears 1x in 1478'
+         only segment c appears 4x in 1478\bef
+         only segment g appears 1x in 1478\bef
 
-         remove c, g from 0123456789:
+         remove segments c, g from 0123456789:
 
-         d appears 7x in 0123456789'
-         a appears 8x in 0123456789'
-         
+         only segment d appears 7x in 0123456789\cg
+         only segment a appears 8x in 0123456789\cg
+
          see also: day08.txt")
-
-; map of segments -> digits
-(def segment-digits {'(:a :b :c :e :f :g) 0
-                     '(:c :f) 1
-                     '(:a :c :d :e :g) 2
-                     '(:a :c :d :f :g) 3
-                     '(:b :c :d :f) 4
-                     '(:a :b :d :f :g) 5
-                     '(:a :b :d :e :f :g) 6
-                     '(:a :c :f) 7
-                     '(:a :b :c :d :e :f :g) 8
-                     '(:a :b :c :d :f :g) 9})
-
 
 (defn count-segments
   "Input: (\"ab\" \"bc\" ...)
@@ -77,7 +66,7 @@
   [sig-pats]
   (let [frq-all (count-segments sig-pats)
         frq-1478 (count-segments (remove #(#{5 6} (.length %)) sig-pats))
-        step-1 (map-val-drop-nil 
+        step-1 (map-val-drop-nil
                  frq-all
                  #(case % 6 :b 4 :e 9 :f nil))
         step-2 (map-val-drop-nil
@@ -89,12 +78,24 @@
     (merge step-1 step-2 step-3)))
 
 (defn transcode-segments
-  "Convert a mystery segment seq into a standard segment seq (using the 
+  "Convert a mystery segment seq into a standard segment set (using the
   segment relation map as produced by `demystify-segments`).
   Input: {\\b :a \\c :f ...} (\\b \\x  ...)
-  Output: (:a :y ...)"
+  Output: #{:a :y ...}"
   [seg-rel-map seg]
-  (map #(get seg-rel-map %) seg))
+  (set (map #(get seg-rel-map %) seg)))
+
+; map of segments -> digits
+(def segment-digits {#{:a :b :c :e :f :g} 0
+                     #{:c :f} 1
+                     #{:a :c :d :e :g} 2
+                     #{:a :c :d :f :g} 3
+                     #{:b :c :d :f} 4
+                     #{:a :b :d :f :g} 5
+                     #{:a :b :d :e :f :g} 6
+                     #{:a :c :f} 7
+                     #{:a :b :c :d :e :f :g} 8
+                     #{:a :b :c :d :f :g} 9})
 
 (defn digits-to-num
   "Input: (i j k ...) ; single digits
@@ -112,8 +113,7 @@
     (->> (s/split mystery-vals #" +") ; split string at spaces
          (map seq) ; convert string -> seq of chars
          (map (partial transcode-segments seg-rel-map)) ; chars -> real seg's
-         (map sort) ; need them sorted
-         (map segment-digits) ; convert segments -> digit
+         (map segment-digits) ; segment sets -> digits
          (digits-to-num))))
 
 (defn solve-part-2

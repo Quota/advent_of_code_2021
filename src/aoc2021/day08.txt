@@ -53,17 +53,17 @@ g 1x -> step 2: deduction
 
 /* deduction of segments:
 
-b appears 6x in 0123456789
-e appears 4x in 0123456789
-f appears 9x in 0123456789
+only segment b appears 6x in 0123456789
+only segment e appears 4x in 0123456789
+only segment f appears 9x in 0123456789
 
-remove b, e, f from 1478:
+remove segments b, e, f from 1478:
 
-c appears 4x in 1478'
-g appears 1x in 1478'
+only segment c appears 4x in 1478\bef
+only segment g appears 1x in 1478\bef
 
-remove c, g from 0123456789:
+remove segments c, g from 0123456789:
 
-d appears 7x in 0123456789'
-a appears 8x in 0123456789'
+only segment d appears 7x in 0123456789\cg
+only segment a appears 8x in 0123456789\cg
 */

@@ -26,13 +26,13 @@
 
          remove segments b, e, f from 1478:
 
-         only segment c appears 4x in 1478\bef
-         only segment g appears 1x in 1478\bef
+         only segment c appears 4x in 1478\\bef
+         only segment g appears 1x in 1478\\bef
 
          remove segments c, g from 0123456789:
 
-         only segment d appears 7x in 0123456789\cg
-         only segment a appears 8x in 0123456789\cg
+         only segment d appears 7x in 0123456789\\cg
+         only segment a appears 8x in 0123456789\\cg
 
          see also: day08.txt")
 

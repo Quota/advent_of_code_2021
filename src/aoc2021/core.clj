@@ -10,6 +10,7 @@
   (:require [aoc2021.day06 :as day06])
   (:require [aoc2021.day07 :as day07])
   (:require [aoc2021.day08 :as day08])
+  (:require [aoc2021.day09 :as day09])
   )
 
 (defn usage
@@ -44,6 +45,8 @@
                  "7.2" (day07/solve-part-2 data)
                  "8.1" (day08/solve-part-1 data)
                  "8.2" (day08/solve-part-2 data)
+                 "9.1" (day09/solve-part-1 data)
+                 "9.2" (day09/solve-part-2 data)
                  nil)]
     (if (some? result)
       (pp/pprint result)

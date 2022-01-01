@@ -40,3 +40,8 @@
     (clojure.string/split $ #"[, ]+")
     (map #(Integer/parseInt %) $)))
 
+(defn parse-digits
+  "Input: \"nnn...\" ; string with digits
+  Output: (n n ...) ; list of integers"
+  [digits]
+  (map #(- (int %) 48) (seq digits)))

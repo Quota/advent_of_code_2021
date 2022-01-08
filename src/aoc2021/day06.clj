@@ -7,15 +7,6 @@
 ;;; by keeping the input sequence and literally growing the string
 ;;;
 
-(defn parse-input
-  "Input: (\"n,n,...\") ; list with one string with numbers separated by comma
-  Output: (n n ...) ; list of integers"
-  [lines]
-  (as-> lines $
-    (first $)
-    (clojure.string/split $ #"[, ]+")
-    (map #(Integer/parseInt %) $)))
-
 (defn calc-next-day-naive
   "Input: (n[d] m[d] ...)
   Output: (n[d+1] m[d+1] ... x[d+1])"
@@ -79,7 +70,7 @@
   [lines]
   ;(loop-days-naive
   (loop-days-vec
-    (parse-input lines)
+    (first (u/parse-numbers #"," lines))
     ; second line can be the number of days
     (let [n (second lines)]
       (if n (Integer/parseInt n) 80))))
@@ -92,7 +83,7 @@
   "256 days of lanternfish"
   [lines]
   (loop-days-vec
-    (parse-input lines)
+    (first (u/parse-numbers #"," lines))
     ; second line can be the number of days
     (let [n (second lines)]
       (if n (Integer/parseInt n) 256))))

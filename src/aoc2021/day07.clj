@@ -20,7 +20,7 @@
 (defn solve-part-1
   "crabs with constant fuel consumption, best-pos is median"
   [data]
-  (let [input (u/parse-input-numbers data)
+  (let [input (first (u/parse-numbers #"," data))
         best-pos (as-> input $ ; calc median
                     (count $)
                     (/ $ 2)
@@ -43,7 +43,7 @@
   mean value +/-0.5 is where the minimum lays.)
   (Why +/-0.5? See here: `https://www.reddit.com/r/adventofcode/comments/rawxad/2021_day_7_part_2_i_wrote_a_paper_on_todays/`)"
   [data]
-  (let [input (u/parse-input-numbers data)
+  (let [input (first (u/parse-numbers #"," data))
         best-pos (/ (reduce + input) (count input))]
     (map #(hash-map :pos % :fuel (calc-fuel input % gausss))
          (list (int best-pos) (int (+ best-pos 0.5))))))

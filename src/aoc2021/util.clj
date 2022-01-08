@@ -31,17 +31,19 @@
                 (* 2)
                 (+ (first bits)))))))
 
-(defn parse-input-numbers
-  "Input: (\"n,n,...\") ; list with one string with numbers separated by comma
-  Output: (n n ...) ; list of integers"
-  [lines]
-  (as-> lines $
-    (first $)
-    (clojure.string/split $ #"[, ]+")
-    (map #(Integer/parseInt %) $)))
-
 (defn parse-digits
   "Input: \"nnn...\" ; string with digits
   Output: (n n ...) ; list of integers"
   [digits]
   (map #(- (int %) 48) (seq digits)))
+
+(defn parse-numbers
+  "Input: (\"n...n...\" \"...\") ; list with strings of integers
+  Output: ((n n ...) ...) ; list of list of numbers
+  Argument `sep` is the regex to use to split numbers within strings, default is spaces (one or more)"
+  ([in]
+   (parse-numbers #" +" in))
+  ([sep in]
+   (->> in
+        (map #(clojure.string/split % sep))
+        (map (fn[x] (map #(Integer/parseInt %) x))))))

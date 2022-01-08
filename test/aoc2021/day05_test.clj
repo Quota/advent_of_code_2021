@@ -6,23 +6,6 @@
 ;;; part 1
 ;;;
 
-;;; parse-input
-
-(deftest parse-input-one-line
-  (testing "parse-input"
-    (is (= '((1 2 3 4))
-           (parse-input '("1,2 -> 3,4"))))))
-
-(deftest parse-input-multi-digit-numbers
-  (testing "parse-input"
-    (is (= '((1 20 300 4000))
-           (parse-input '("1,20 -> 300,4000"))))))
-
-(deftest parse-input-three-lines
-  (testing "parse-input"
-    (is (= '((1 2 3 4)(5 6 7 8))
-           (parse-input '("1,2 -> 3,4" "5,6 -> 7,8"))))))
-
 ;;; inc-map-at-point
 
 (deftest inc-map-at-point-empty-1

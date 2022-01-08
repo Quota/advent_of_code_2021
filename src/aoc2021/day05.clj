@@ -2,14 +2,6 @@
   (:require [clojure.string :as str]
             [aoc2021.util :as u]))
 
-(defn parse-input
-  "Input: (\"n,n -> n,n\" \"...\")
-  Output: ((n n n n) (...) ...)"
-  [data]
-  (map (fn [line]
-         (map #(Integer/parseInt %) (clojure.string/split line #"[-> ,]+")))
-       data))
-
 (defn inc-map-at-point
   "Input: map [x y]
   Output: map with item at [x y] inc'ed"
@@ -78,7 +70,7 @@
   Output: Number of dangerous points (where 2 or more vectors overlap)"
   [include-diag data]
   (->> data
-       parse-input
+       (u/parse-numbers #"[-> ,]+")
        (fill-map include-diag)
        ;print-map
        (reduce (fn [counter [_ value]] (if (> value 1) (inc counter) counter))

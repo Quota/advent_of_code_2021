@@ -2,14 +2,62 @@ import java.util.*;
 import java.util.stream.*;
 import java.nio.file.*;
 
-// Usage: java Day12.java <input_file>
+// Usage: java Day12.java <part:1|2> <input_file>
 public class Day12 {
   public static void main(String[] args) throws Exception {
+    var lines = Files.readAllLines(Path.of(args[1]));
+    var timer = new Timer();
+    timer.start();
+    if("1".equals(args[0]))
+      part1(lines);
+    else
+      part2(lines);
+    timer.stop("Total");
+  }
+
+  static void part1(List<String> lines) throws Exception {
+    Timer timer = new Timer();
     // build neighbors map
-    var neighbors = buildNeighbors(Files.readAllLines(Path.of(args[0])), "start", "end");
+    timer.start();
+    var neighbors = buildNeighbors(lines, "start", "end");
+    timer.stop("Neighbors");
 
     // calculate paths
-    var result = calculatePaths(neighbors, "start", "end");
+    timer.start();
+    var result = calculatePaths(neighbors, "start", "end", new SingleVisitRule());
+    timer.stop("Calc");
+
+    // print result
+    System.out.println("Neighbor map: " + neighbors);
+    System.out.println("Paths: " + result.size());
+    //result.forEach(System.out::println);
+  }
+
+  static void part2(List<String> lines) throws Exception {
+    var timer = new Timer();
+    // build neighbors map
+    timer.start();
+    var neighbors = buildNeighbors(lines, "start", "end");
+    timer.stop("Neighbors");
+
+    // find all small caves (except start/end)
+    timer.start();
+    var smallCaves = neighbors.keySet()
+                              .stream()
+                              .filter(c -> Character.isLowerCase(c.charAt(0)))
+                              .filter(c -> !"start".equals(c) && !"end".equals(c))
+                              .collect(Collectors.toSet());
+    timer.stop("Small caves");
+
+    // calculate paths
+    var result = new HashSet<List<String>>();
+    for(String smallCave: smallCaves) {
+      log("TWICE allowed: " + smallCave + "\n");
+
+      timer.start();
+      result.addAll(calculatePaths(neighbors, "start", "end", new OneTwiceVisitRule(smallCave)));
+      timer.stop(smallCave + " twice");
+    }
 
     // print result
     System.out.println("Neighbor map: " + neighbors);
@@ -33,11 +81,11 @@ public class Day12 {
     return res;
   }
 
-  static List<List<String>> calculatePaths(Map<String, List<String>> neighbors, String curr, String end) {
-    return calculatePaths(0, neighbors, new HashSet<>(), curr, end, List.of("start"));
+  static Set<List<String>> calculatePaths(Map<String, List<String>> neighbors, String curr, String end, VisitRule visitRule) {
+    return calculatePaths(0, neighbors, visitRule, curr, end, List.of("start"));
   }
 
-  static List<List<String>> calculatePaths(int level, Map<String, List<String>> neighbors, Set<String> visited, String curr, String end, List<String> path) {
+  static Set<List<String>> calculatePaths(int level, Map<String, List<String>> neighbors, VisitRule visitRule, String curr, String end, List<String> path) {
     // debug output
     for(int i = 0; i < level; i++)
       log("  ");
@@ -46,20 +94,14 @@ public class Day12 {
     // check end cave
     if(end.equals(curr)) {
       log(" -> " + path + "\n");
-      return List.of(path);
+      return Set.of(path);
     }
 
     // check/remember lower case caves
-    if(visited.contains(curr)) {
+    VisitRule nextVisitRule = visitRule.visit(curr);
+    if(nextVisitRule == null) {
       log(" (already been)\n");
       return null;
-    }
-    final Set<String> vis2;
-    if(Character.isLowerCase(curr.charAt(0))) {
-      vis2 = new HashSet<>(visited);
-      vis2.add(curr);
-    } else {
-      vis2 = visited;
     }
 
     // recur to neighbor caves
@@ -67,10 +109,10 @@ public class Day12 {
     return neighbors.getOrDefault(curr, Collections.emptyList())
                     .stream()
                     .map(neigh -> copyAndAdd(path, neigh))
-                    .map(neighPath -> calculatePaths(level+1, neighbors, vis2, neighPath.get(neighPath.size()-1), end, neighPath))
+                    .map(neighPath -> calculatePaths(level+1, neighbors, nextVisitRule, neighPath.get(neighPath.size()-1), end, neighPath))
                     .filter(Objects::nonNull)
                     .flatMap(Collection::stream)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toSet());
   }
 
   // helper to create a copy of `in`, add `item` to it and return it
@@ -79,5 +121,68 @@ public class Day12 {
     var out = new ArrayList<>(in);
     out.add(item);
     return out;
+  }
+
+  interface VisitRule {
+    /** Returns the next VisitRule to continue, or null to abort. */
+    VisitRule visit(String value);
+  }
+
+  static class SingleVisitRule implements VisitRule {
+    Set<String> visited = new HashSet<>();
+    public VisitRule visit(String value) {
+      if(visited.contains(value))
+        return null;
+      if(Character.isLowerCase(value.charAt(0))) {
+        SingleVisitRule ret = new SingleVisitRule();
+        ret.visited.addAll(visited);
+        ret.visited.add(value);
+        return ret;
+      }
+      return this;
+    }
+  }
+
+  static class OneTwiceVisitRule implements VisitRule {
+    Set<String> visited = new HashSet<>();
+    String twiceValue;
+    boolean twiceValueVisited;
+    OneTwiceVisitRule(String twiceValue) {
+      this.twiceValue = twiceValue;
+    }
+    OneTwiceVisitRule(OneTwiceVisitRule other) {
+      visited.addAll(other.visited);
+      twiceValue = other.twiceValue;
+      twiceValueVisited = other.twiceValueVisited;
+    }
+    boolean isVisited(String value) {
+      if(twiceValue.equals(value)) {
+        return visited.contains(value) && twiceValueVisited;
+      }
+      return visited.contains(value);
+    }
+    public VisitRule visit(String value) {
+      if(isVisited(value))
+        return null;
+      if(Character.isLowerCase(value.charAt(0))) {
+        OneTwiceVisitRule ret = new OneTwiceVisitRule(this);
+        ret.visited.add(value);
+        if(twiceValue.equals(value) && visited.contains(value)) // NOT ret.visited.contains(value) !!!
+          ret.twiceValueVisited = true;
+        return ret;
+      }
+      return this;
+    }
+  }
+
+  static class Timer {
+    long t;
+    void start() {
+      t = System.currentTimeMillis();
+    }
+    void stop(String msg) {
+      t = System.currentTimeMillis() - t;
+      System.out.println(msg + " time: " + t + " ms");
+    }
   }
 }

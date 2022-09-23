@@ -12,16 +12,24 @@
   [data]
   (let [width (count (first data))
         height (count data)
-        edges (->> data ; list [i=x+width*y]->edge_costs_to_xy /*from all neighbors*/
+        edges (->> data ; list [i=x+width*y]->edge_costs_to_xy /*from any neighbor*/
                    (apply concat)
                    (map #(- (int %) 48))
                    (into []))]
     {:edges (fn get-edge [[x y]] (edges (+ x (* y width))))
      :values {[0 0] 0} ; map [x,y]->total_costs_to_xy /*from the start node*/
-     :parents {[0 0] [0 0]} ; map [x,y]->direction /*one of: :up, :left, :down, :right*/
+     :parents {[0 0] [0 0]} ; map [x,y]->[x_p,y_p]
      :queue (priority-map [0 0] 0) ; map [x,y]->total_costs_to_xy
      :ewidth width
      :eheight height}))
+
+(defn plot-cave
+  [data]
+  (let [x-max (dec (:ewidth data))]
+    (doseq [y (range (:eheight data))
+            x (range (inc x-max))]
+      (print ((:edges data) [x y]))
+      (if (= x x-max) (println)))))
 
 (defn dijkstra-reducer
   [curr data nbr]  ; nbr: neighbor (of curr) to check
@@ -70,17 +78,45 @@
   [input]
   (-> input
        read-data 
-       run-dijkstra
+       ;run-dijkstra
+       (#(time (run-dijkstra %)))
        (#((:values %) [(dec (:ewidth %)) (dec (:eheight %))]))))
 
 ;;;
 ;;; part 2
 ;;;
 
+(defn resized-edge
+  [edges-x1 width-x1 height-x1 [x y]]
+  ; we need numbers 1-9 but mod 10 gives us 0-9. so before mod we dec
+  ; then do mod 9 (instead of 10) and then inc again
+  (-> (+ (edges-x1 [(mod x width-x1) (mod y height-x1)])
+         (int (/ x width-x1))
+         (int (/ y height-x1)))
+      dec
+      (mod 9)
+      inc))
+
+(defn resize-cave
+  [data fac]
+  (let [edges-x1 (:edges data)
+        width-x1 (:ewidth data)
+        height-x1 (:eheight data)]
+    (-> data 
+        (assoc :edges (partial resized-edge edges-x1 width-x1 height-x1))
+        (assoc :ewidth (* width-x1 fac))
+        (assoc :eheight (* height-x1 fac)))))
+
 (defn solve-part-2
   "day 15 part 2"
   [input]
-  "todo")
+    (-> input
+        read-data
+        (resize-cave 5)
+        ;run-dijkstra
+        (#(time (run-dijkstra %)))
+        (#((:values %) [(dec (:ewidth %)) (dec (:eheight %))]))))
+                                
 
 ;;;
 ;;; dev space
@@ -91,6 +127,11 @@
     (clojure.string/split-lines (slurp "resources/day15_input_real.txt")))
 
   (solve-part-2
-    (clojure.string/split-lines (slurp "resources/day15_input_sample.txt")))
+    (clojure.string/split-lines (slurp "resources/day15_input_real.txt")))
+
+  (plot-cave
+    (resize-cave
+      (read-data (clojure.string/split-lines (slurp "resources/day15_input_sample.txt")))
+      3))
 
 )
